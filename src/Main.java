@@ -10,8 +10,9 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String[] input = scanner.nextLine().split(",");
+            int i = 1;
             for (String s : input) {
-                pages.add(new Page(Math.abs(Integer.parseInt(s) ) ) );
+                pages.add(new Page(Math.abs(Integer.parseInt(s)), i++ ) );
                 runTime++;
             }
         }

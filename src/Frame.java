@@ -20,6 +20,6 @@ public class Frame {
 
     public void incrementAge() {
         if (page != null)
-            page.incrementAge();
+            page.tickLock();
     }
 }
