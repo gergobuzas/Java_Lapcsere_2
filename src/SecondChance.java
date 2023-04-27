@@ -19,11 +19,6 @@ public class SecondChance {
     public void tick(Page page) {
         incrementAges();
         addPage(page);
-        //sort();
-    }
-
-    private void sort() {
-        frames.sort((f1, f2) -> f2.getPage().getAge() - f1.getPage().getAge());
     }
 
     private void incrementAges() {
@@ -43,10 +38,7 @@ public class SecondChance {
     }
 
     private boolean swapFrames(Page p){
-        //if all frames are full, find a page to evict --- this is the second chance part
-        //Sort the pages by age, descending
-        //Go through the frames until you find a page that has not been referenced and is not locked
-        //frames.sort((f1, f2) -> f2.getPage().getAge() - f1.getPage().getAge());
+        //Check if all frames are locked
         int lockCounter = 0;
         for (Frame frame : frames){
             if (frame.getPage().getLock())
@@ -55,9 +47,11 @@ public class SecondChance {
         if (lockCounter == 3){
             return false;
         }
-        boolean found = false;
+
+        //Moving the FIFO part to the end of the list if it is needed
         int i = 0;
-        while (!found) {
+        while (true) {
+                //Check if the page isn't referenced and isn't locked
                 if (!frames.get(i).getPage().getReferenced() && !frames.get(i).getPage().getLock()) {
                     frames.get(i).setPage(p);
                     Frame temp = frames.get(i);
@@ -66,22 +60,23 @@ public class SecondChance {
                     System.out.printf("%s",temp.getName());
                     pageFaults++;
                     return true;
-                } else if (frames.get(i).getPage().getReferenced()) {
-                    frames.get(i).getPage().setReferenced(false);
-                    //TODO FIFO part, for the second chance part
-                    Frame temp = frames.get(i);
+                }
+                //Check if the frame is referenced and act accordingly
+                else if (frames.get(i).getPage().getReferenced()) {
+                    frames.get(i).getPage().setReferenced(false); //Setting the referenced bit to false
+                    Frame temp = frames.get(i); //Moving the frame to the end of the list
                     frames.remove(i);
                     frames.add(temp);
-                } else if (frames.get(i).getPage().getLock()) {
-                    //TODO FIFO part, for the second chance part
-                    //Search the index of the next page that is not locked
+                }
+                //Check if the frame is locked and act accordingly
+                else if (frames.get(i).getPage().getLock()) {
+                    //Search the index of the next frame that is not locked
                     int j = i;
                     while (frames.get(j).getPage().getLock()) {
                         j++;
                     }
-
+                    //Move the frame the end of the FIFO List
                     Frame temp = frames.get(j);
-                    int oldIdx = i + j;
                     frames.remove(j);
                     temp.setPage(p);
                     frames.add(temp);
@@ -90,7 +85,6 @@ public class SecondChance {
                     return true;
                 }
             }
-            return true;
         }
 
 
@@ -140,6 +134,4 @@ public class SecondChance {
     public int getPageFaults() {
         return pageFaults;
     }
-
-
 }
